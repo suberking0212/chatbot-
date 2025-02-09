@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>语音/文本聊天机器人🤖</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 30px;
+        }
+        textarea {
+            width: 100%;
+            height: 150px;
+        }
+        button {
+            padding: 10px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        h3 {
+            margin-top: 20px;
+        }
+        audio {
+            margin-top: 10px;
+        }
+        label {
+            display: block;
+            margin-top: 10px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>聊天机器人</h1>
+
+    <!-- 文本提问部分 -->
+    <h2>文本提问</h2>
+    <form method="POST" enctype="multipart/form-data">
+        <label for="text_input">请输入您的问题：</label>
+        <textarea name="text_input" id="text_input" placeholder="说点什么～" required></textarea><br><br>
+
+        <!-- 语言选择框 -->
+        <label for="language">选择机器人的回复语言：</label>
+        <select name="language" id="language" required>
+            <option value="zh">简体中文</option>
+            <option value="en">English</option>
+            <option value="ja">日本語</option>
+            <option value="fr">Français</option>
+            <option value="ko">한국어</option>
+        </select><br><br>
+
+        <!-- 音色选择框 -->
+        <label for="voice">选择语音音色：</label>
+        <select name="voice" id="voice" required>
+            <option value="0">度小宇</option>
+            <option value="1">度小美</option>
+            <option value="3">度逍遥</option>
+            <option value="4">度丫丫</option>
+        </select><br><br>
+
+        <button type="submit">提交文本问题</button>
+    </form>
+
+    <!-- 语音提问部分 -->
+    <h2>语音提问</h2>
+    <form method="POST" enctype="multipart/form-data">
+        <label for="file">上传语音文件：</label>
+        <input type="file" name="file" id="file" accept="audio/*" required><br><br>
+
+        <!-- 语言选择框 -->
+        <label for="language">选择回复语言：</label>
+        <select name="language" id="language" required>
+            <option value="zh">简体中文</option>
+            <option value="en">English</option>
+            <option value="ja">日本語</option>
+            <option value="fr">Français</option>
+            <option value="ko">한국어</option>
+        </select><br><br>
+
+        <!-- 音色选择框 -->
+        <label for="voice">选择语音音色：</label>
+        <select name="voice" id="voice" required>
+            <option value="0">度小宇</option>
+            <option value="1">度小美</option>
+            <option value="3">度逍遥</option>
+            <option value="4">度丫丫</option>
+        </select><br><br>
+
+        <button type="submit">提交语音问题</button>
+    </form>
+
+    <!-- 显示机器人回答 -->
+    {% if text_reply %}
+        <h3>机器人回答（文字）：</h3>
+        <p>{{ text_reply }}</p>
+
+        <h3>机器人回答（语音）：</h3>
+        <audio controls>
+            <source src="data:audio/mp3;base64,{{ audio_reply }}" type="audio/mp3">
+            oops~您的浏览器不支持播放音频呢
+        </audio>
+    {% endif %}
+
+</body>
+</html>
