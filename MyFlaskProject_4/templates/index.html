@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>语音/文本聊天机器人🤖</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 30px;
+        }
+        textarea {
+            width: 100%;
+            height: 150px;
+        }
+        button {
+            padding: 10px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        h3 {
+            margin-top: 20px;
+        }
+        audio {
+            margin-top: 10px;
+        }
+        label {
+            display: block;
+            margin-top: 10px;
+            font-size: 16px;
+        }
+        #conversation-list {
+            float: left;
+            width: 20%;
+            height: 100%;
+            border-right: 1px solid #ccc;
+            padding-right: 10px;
+            overflow-y: auto;
+        }
+        #conversation-list li {
+            cursor: pointer;
+            padding: 5px;
+            border-bottom: 1px solid #ccc;
+        }
+        #conversation-list li:hover {
+            background-color: #f0f0f0;
+        }
+        #main-content {
+            float: left;
+            width: 75%;
+            padding-left: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>聊天机器人</h1>
+
+    <div id="conversation-list">
+        <h2>对话历史</h2>
+        <ul>
+            {% for i in range(1, (history|length // 2) + 1) %}
+                <li onclick="loadConversation({{ i }})">对话 {{ i }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <div id="main-content">
+        <!-- 文本提问部分 -->
+        <h2>文本提问</h2>
+        <form method="POST" enctype="multipart/form-data">
+            <label for="text_input">请输入您的问题：</label>
+            <textarea name="text_input" id="text_input" placeholder="说点什么～" required></textarea><br><br>
+
+            <!-- 语言选择框 -->
+            <label for="language">选择机器人的回复语言：</label>
+            <select name="language" id="language" required>
+                <option value="zh">简体中文</option>
+                <option value="en">English</option>
+                <option value="ja">日本語</option>
+                <option value="fr">Français</option>
+                <option value="ko">한국어</option>
+            </select><br><br>
+
+            <!-- 音色选择框 -->
+            <label for="voice">选择语音音色：</label>
+            <select name="voice" id="voice" required>
+                <option value="4189">度涵竹</option>
+                <option value="1">度小美</option>
+                <option value="3">度逍遥</option>
+                <option value="4">度丫丫</option>
+            </select><br><br>
+
+            <button type="submit">提交文本问题</button>
+        </form>
+
+        <!-- 语音提问部分 -->
+        <h2>语音提问</h2>
+        <form method="POST" enctype="multipart/form-data">
+            <label for="file">上传语音文件：</label>
+            <input type="file" name="file" id="file" accept="audio/*" required><br><br>
+
+            <!-- 语言选择框 -->
+            <label for="language">选择回复语言：</label>
+            <select name="language" id="language" required>
+                <option value="zh">简体中文</option>
+                <option value="en">English</option>
+                <option value="ja">日本語</option>
+                <option value="fr">Français</option>
+                <option value="ko">한국어</option>
+            </select><br><br>
+
+            <!-- 音色选择框 -->
+            <label for="voice">选择语音音色：</label>
+            <select name="voice" id="voice" required>
+                <option value="0">度小宇</option>
+                <option value="1">度小美</option>
+                <option value="3">度逍遥</option>
+                <option value="4">度丫丫</option>
+            </select><br><br>
+
+            <button type="submit">提交语音问题</button>
+        </form>
+
+        <!-- 显示对话历史 -->
+        {% if history %}
+            <h2>对话历史</h2>
+            <ul>
+                {% for message in history %}
+                    <li><strong>{{ message.role }}:</strong> {{ message.content }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+
+        <!-- 显示机器人回答 -->
+        {% if text_reply %}
+            <h3>机器人回答（文字）：</h3>
+            <p>{{ text_reply }}</p>
+
+            <h3>机器人回答（语音）：</h3>
+            <audio controls>
+                <source src="data:audio/mp3;base64,{{ audio_reply }}" type="audio/mp3">
+                oops~您的浏览器不支持播放音频呢
+            </audio>
+        {% endif %}
+    </div>
+
+    <script>
+        function loadConversation(conversationId) {
+            // 这里可以添加加载对话内容的逻辑，比如通过 AJAX 请求获取对话文字和语音
+            console.log('加载对话', conversationId);
+        }
+
+        document.addEventListener('contextmenu', function(event) {
+            if (event.target.tagName === 'LI') {
+                const conversationId = parseInt(event.target.textContent.split(' ')[1]);
+                if (confirm('确定要删除这个对话吗？')) {
+                    fetch(`/delete_conversation/${conversationId}`, {
+                        method: 'POST'
+                    }).then(response => response.json())
+                    .then(data => {
+                        alert(data.message);
+                        location.reload();
+                    });
+                }
+                event.preventDefault();
+            }
+        });
+    </script>
+
+</body>
+</html>
