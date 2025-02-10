@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- 引入 Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入 Google Fonts 的 Inter 字体 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <title>语音/文本聊天机器人🤖</title>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f9fafb;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto py-8 px-4 md:px-0">
+        <h1 class="text-3xl font-bold text-center text-gray-800 mb-8">逗包 Dou Bao</h1>
+        <div class="flex flex-col md:flex-row gap-4">
+            <!-- 对话历史部分 -->
+            <div id="conversation-list"
+                class="bg-white rounded-lg shadow-md p-6 h-full md:h-screen overflow-y-auto md:w-1/4">
+                <h2 class="text-xl font-bold text-gray-700 mb-4">对话历史</h2>
+                <ul id="conversation-ul">
+                    {% for i in range(1, (history|length // 2) + 1) %}
+                    <li onclick="loadConversation({{ i }})"
+                        class="p-2 border-b border-gray-200 hover:bg-gray-50 cursor-pointer transition duration-200">对话
+                        {{ i }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <!-- 主内容部分 -->
+            <div id="main-content"
+                class="bg-white rounded-lg shadow-md p-6 h-full md:h-screen overflow-y-auto md:w-3/4">
+                <!-- 文本提问部分 -->
+                <h2 class="text-xl font-bold text-gray-700 mb-4">文本提问</h2>
+                <form method="POST" enctype="multipart/form-data" class="mb-8">
+                    <label for="text_input" class="block text-sm font-medium text-gray-700">请输入您的问题：</label>
+                    <textarea name="text_input" id="text_input" placeholder="说点什么～" required
+                        class="mt-1 block w-full border border-gray-300 rounded-md py-2 px-3 shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"></textarea>
+                    <div class="mt-4">
+                        <label for="language"
+                            class="block text-sm font-medium text-gray-700">选择机器人的回复语言：</label>
+                        <select name="language" id="language" required
+                            class="mt-1 block w-full border border-gray-300 rounded-md py-2 px-3 shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                            <option value="zh">简体中文</option>
+                            <option value="en">English</option>
+                            <option value="ja">日本語</option>
+                            <option value="fr">Français</option>
+                            <option value="ko">한국어</option>
+                        </select>
+                    </div>
+                    <div class="mt-4">
+                        <label for="voice" class="block text-sm font-medium text-gray-700">选择语音音色：</label>
+                        <select name="voice" id="voice" required
+                            class="mt-1 block w-full border border-gray-300 rounded-md py-2 px-3 shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                            <option value="4189">度涵竹</option>
+                            <option value="1">度小美</option>
+                            <option value="3">度逍遥</option>
+                            <option value="4">度丫丫</option>
+                        </select>
+                    </div>
+                    <button type="submit"
+                        class="mt-4 bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">提交文本问题</button>
+                </form>
+                <!-- 语音提问部分 -->
+                <h2 class="text-xl font-bold text-gray-700 mb-4">语音提问</h2>
+                <form method="POST" enctype="multipart/form-data">
+                    <label for="file" class="block text-sm font-medium text-gray-700">上传语音文件：</label>
+                    <input type="file" name="file" id="file" accept="audio/*" required
+                        class="mt-1 block w-full border border-gray-300 rounded-md py-2 px-3 shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                    <div class="mt-4">
+                        <label for="language"
+                            class="block text-sm font-medium text-gray-700">选择回复语言：</label>
+                        <select name="language" id="language" required
+                            class="mt-1 block w-full border border-gray-300 rounded-md py-2 px-3 shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                            <option value="zh">简体中文</option>
+                            <option value="en">English</option>
+                            <option value="ja">日本語</option>
+                            <option value="fr">Français</option>
+                            <option value="ko">한국어</option>
+                        </select>
+                    </div>
+                    <div class="mt-4">
+                        <label for="voice" class="block text-sm font-medium text-gray-700">选择语音音色：</label>
+                        <select name="voice" id="voice" required
+                            class="mt-1 block w-full border border-gray-300 rounded-md py-2 px-3 shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                            <option value="4189">度涵竹</option>
+                            <option value="1">度小美</option>
+                            <option value="3">度逍遥</option>
+                            <option value="4">度丫丫</option>
+                        </select>
+                    </div>
+                    <button type="submit"
+                        class="mt-4 bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">提交语音问题</button>
+                </form>
+                <!-- 显示对话历史 -->
+                {% if history %}
+                <h2 class="text-xl font-bold text-gray-700 mt-8 mb-4">对话历史</h2>
+                <ul>
+                    {% for message in history %}
+                    <li class="p-2 border-b border-gray-200"><strong>{{ message.role }}:</strong> {{ message.content }}</li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+                <!-- 显示机器人回答 -->
+                {% if text_reply %}
+                <h3 class="text-lg font-bold text-gray-700 mt-8 mb-2">机器人回答（文字）：</h3>
+                <p class="p-2 border border-gray-200 rounded-md">{{ text_reply }}</p>
+                <h3 class="text-lg font-bold text-gray-700 mt-4 mb-2">机器人回答（语音）：</h3>
+                <audio controls class="mt-2">
+                    <source src="data:audio/mp3;base64,{{ audio_reply }}" type="audio/mp3">
+                    oops~您的浏览器不支持播放音频呢
+                </audio>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <script>
+        function loadConversation(conversationId) {
+            // 这里可以添加加载对话内容的逻辑，比如通过 AJAX 请求获取对话文字和语音
+            console.log('加载对话', conversationId);
+        }
+
+        document.addEventListener('contextmenu', function (event) {
+            if (event.target.tagName === 'LI') {
+                const conversationId = parseInt(event.target.textContent.split(' ')[1]);
+                if (confirm('确定要删除这个对话吗？')) {
+                    fetch(`/delete_conversation/${conversationId}`, {
+                        method: 'POST'
+                    })
+                   .then(response => {
+                        if (!response.ok) {
+                            throw new Error('网络请求失败');
+                        }
+                        return response.json();
+                    })
+                   .then(data => {
+                        if (data.message === '对话已删除') {
+                            // 弹出成功提示框
+                            const alertBox = document.createElement('div');
+                            alertBox.textContent = '已删除此段对话';
+                            alertBox.classList.add('fixed', 'top-4', 'right-4', 'bg-green-500', 'text-white', 'p-2', 'rounded-md', 'z-50');
+                            document.body.appendChild(alertBox);
+                            setTimeout(() => {
+                                alertBox.remove();
+                            }, 2000);
+                            // 刷新页面
+                            location.reload();
+                        } else {
+                            // 根据后端返回的错误信息提示用户
+                            alert(data.message);
+                        }
+                    })
+                   .catch(error => {
+                        console.error('请求出错:', error);
+                        alert('删除对话时出现网络错误，请稍后重试');
+                    });
+                }
+                event.preventDefault();
+            }
+        });
+    </script>
+</body>
+
+</html>
